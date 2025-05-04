@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IconCheck, IconSearch, IconX } from '@tabler/icons-react';
-import { Autocomplete, Button, Container, Grid, Group, Image, Modal, Text } from '@mantine/core';
+import { Autocomplete, Button, Container, Grid, Group, Image, Modal } from '@mantine/core';
 import { Link as TanStackLink, useNavigate, useSearch } from '@tanstack/react-router';
 import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -32,20 +32,23 @@ export default function Header() {
       title: 'Book created successfully',
       message: (
         <Link asChild><TanStackLink to={`/library/${createdBook.id}`}>Click here to go to the book page.</TanStackLink></Link>
-        // <Text>
-        // </Text>
       ),
       icon: <IconCheck size={18} />,
     })
   };
 
   const handleSearch = useDebouncedCallback((value: string) => {
+    const params = { ...searchParams };
+
+    if (value.length) {
+      params.search = value;
+    } else {
+      delete params.search;
+    }
+
     navigate({
       to: '/',
-      search: {
-        ...searchParams,
-        search: value,
-      },
+      search: params,
     });
   }, 500);
 

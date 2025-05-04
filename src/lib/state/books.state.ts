@@ -29,11 +29,11 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 
 	const { mutateAsync: updateBook, isPending: isUpdating } = useMutation({
 		mutationFn: async ({ bookId, updateBookDto }: { bookId: BookDto['id'], updateBookDto: UpdateBookDto }) => booksAPI.update(bookId, updateBookDto),
-		onSuccess: (data, { bookId }) => {
+		onSuccess: (response, { bookId }) => {
 			const cachedBook = queryClient.getQueryCache().find({ queryKey: [STATE_KEYS.BOOK, bookId] });
 
 			if (cachedBook) {
-				cachedBook.setData({ ...cachedBook, ...data });
+				cachedBook.setData({ ...cachedBook, ...response });
 			}
 
 			// This could be optimized with optimistic updates later
