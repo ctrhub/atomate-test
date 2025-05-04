@@ -1,5 +1,6 @@
-import { Box, Button, Card, Group, Image, Text } from "@mantine/core";
+import { Box, Button, Card, Flex, Group, Image, Text } from "@mantine/core";
 import { Link } from "@tanstack/react-router";
+import dayjs from "dayjs";
 
 import type { BookDto } from "@/types/dtos/books.dto";
 import classes from '@/components/organisms/BookCard.module.css';
@@ -20,6 +21,14 @@ export function BookCard({ book }: { book: BookDto }) {
 				<Text fz="sm" mt="xs" c="gray.6" className={classes.truncate}>
 					{book.description}
 				</Text>
+				<Flex w="100%" mt="xs" justify="space-between">
+					<Text fz="xs" c="gray.4">
+						By: {book.author}
+					</Text>
+					<Text fz="xs" c="gray.4">
+						{dayjs(book.publishedAt).format('YYYY/MM/DD')}
+					</Text>
+				</Flex>
 			</Card.Section>
 
 			<Box mt="xs" w="100%">

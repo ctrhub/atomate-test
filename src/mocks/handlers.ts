@@ -12,11 +12,17 @@ export const handlers = [
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10', 10);
 
-    const totalItems = books.length;
+    const sortedBooks = [...books].sort((a, b) => {
+      const dateA = new Date(a.publishedAt).getTime();
+      const dateB = new Date(b.publishedAt).getTime();
+      return dateB - dateA;
+    });
+
+    const totalItems = sortedBooks.length;
     const totalPages = Math.ceil(totalItems / pageSize);
     const startIndex = (page - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const paginatedBooks = books.slice(startIndex, endIndex);
+    const paginatedBooks = sortedBooks.slice(startIndex, endIndex);
 
     const response: PaginatedResponse<BookDto> = {
       data: paginatedBooks,
