@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import logo from '../logo.svg'
 import '../App.css'
@@ -7,6 +8,9 @@ export const Route = createFileRoute('/')({
 })
 
 function App() {
+  useEffect(() => {
+    fetch('/api/user').then((res) => res.json()).then((data) => console.log(data))
+  }, [])
   return (
     <div className="App">
       <header className="App-header">
