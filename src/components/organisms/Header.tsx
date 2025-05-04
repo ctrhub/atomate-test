@@ -1,7 +1,8 @@
-import { IconSearch } from '@tabler/icons-react';
+import { useState } from 'react';
+import { IconSearch, IconX } from '@tabler/icons-react';
 import { Autocomplete, Button, Container, Grid, Group, Image, Modal } from '@mantine/core';
-import { Link as TanStackLink } from '@tanstack/react-router';
-import { useDisclosure } from '@mantine/hooks';
+import { Link as TanStackLink, useNavigate, useSearch } from '@tanstack/react-router';
+import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 
 import type { CreateBookDto, UpdateBookDto } from '@/types/dtos/books.dto';
 import logo from '@/logo.svg';
@@ -15,13 +16,31 @@ const links = [
 ];
 
 export default function Header() {
+  const searchParams = useSearch({ from: '/', shouldThrow: false });
+  const [search, setSearch] = useState(searchParams?.search || '');
   const [isBookModalOpen, bookModal] = useDisclosure(false);
 
+  const navigate = useNavigate();
   const { createBook } = useBookList();
 
   const handleFormSubmit = (values: CreateBookDto | UpdateBookDto) => {
     createBook(values);
     bookModal.close();
+  };
+
+  const handleSearch = useDebouncedCallback((value: string) => {
+    navigate({
+      to: '/',
+      search: {
+        ...searchParams,
+        search: value,
+      },
+    });
+  }, 500);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    handleSearch(value);
   };
 
   const items = links.map((link) => (
@@ -47,10 +66,12 @@ export default function Header() {
             </Grid.Col>
             <Grid.Col span={4}>
               <Autocomplete
+                value={search}
                 className={classes.search}
                 placeholder="Search"
                 leftSection={<IconSearch size={16} stroke={1.5} />}
-                data={['React', 'Angular', 'Vue', 'Next.js', 'Riot.js', 'Svelte', 'Blitz.js']}
+                {...(search.length ? { rightSection: <IconX size={16} stroke={1.5} onClick={() => handleSearchChange('')} /> } : {})}
+                onChange={handleSearchChange}
               />
             </Grid.Col>
             <Grid.Col span={4}>
