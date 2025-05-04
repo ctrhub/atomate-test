@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Center, Container, Grid, Pagination } from '@mantine/core';
 import z from 'zod';
 
@@ -32,7 +32,7 @@ function Page() {
   };
 
   return (
-    <Container pt="lg">
+    <Container mt="lg">
       <Grid>
         {bookList.map((book) => (
           <Grid.Col span={4} key={book.id}>

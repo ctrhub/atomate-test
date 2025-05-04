@@ -11,8 +11,18 @@ export const handlers = [
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10', 10);
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
 
-    const sortedBooks = [...books].sort((a, b) => {
+    // Filter books based on search term
+    let filteredBooks = books;
+    if (search) {
+      filteredBooks = books.filter(book =>
+        book.title.toLowerCase().includes(search) ||
+        book.author.toLowerCase().includes(search)
+      );
+    }
+
+    const sortedBooks = [...filteredBooks].sort((a, b) => {
       const dateA = new Date(a.publishedAt).getTime();
       const dateB = new Date(b.publishedAt).getTime();
       return dateB - dateA;

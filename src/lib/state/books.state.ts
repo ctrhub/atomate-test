@@ -7,6 +7,7 @@ import { booksAPI } from "@/lib/api/books.api";
 
 const STATE_KEYS = {
 	BOOK_LIST: 'book_list',
+	BOOK: 'book',
 };
 
 export const useBookList = (query: PaginatedRequest = {}) => {
@@ -28,7 +29,13 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 
 	const { mutateAsync: updateBook } = useMutation({
 		mutationFn: async ({ bookId, updateBookDto }: { bookId: BookDto['id'], updateBookDto: UpdateBookDto }) => booksAPI.update(bookId, updateBookDto),
-		onSuccess: () => {
+		onSuccess: (data, { bookId }) => {
+			const cachedBook = queryClient.getQueryCache().find({ queryKey: [STATE_KEYS.BOOK, bookId] });
+
+			if (cachedBook) {
+				cachedBook.setData({ ...cachedBook, ...data });
+			}
+
 			// This could be optimized with optimistic updates later
 			queryClient.invalidateQueries({ queryKey: queryKey });
 		}
@@ -36,7 +43,13 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 
 	const { mutateAsync: deleteBook } = useMutation({
 		mutationFn: async (bookId: BookDto['id']) => booksAPI.delete(bookId),
-		onSuccess: () => {
+		onSuccess: (_, bookId) => {
+			const cachedBook = queryClient.getQueryCache().find({ queryKey: [STATE_KEYS.BOOK, bookId] });
+
+			if (cachedBook) {
+				cachedBook.setData(null);
+			}
+
 			// This could be optimized with optimistic updates later
 			queryClient.invalidateQueries({ queryKey: queryKey });
 		}
@@ -52,4 +65,17 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 		updateBook,
 		deleteBook,
 	}
+};
+
+export const useBook = (bookId: BookDto['id']) => {
+	const queryKey = [STATE_KEYS.BOOK, bookId];
+
+	const { data } = useQuery<BookDto>({
+		queryKey,
+		queryFn: () => booksAPI.getDetail(bookId),
+	});
+
+	return {
+		book: data,
+	};
 };
