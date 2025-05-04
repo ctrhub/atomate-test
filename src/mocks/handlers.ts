@@ -1,12 +1,31 @@
 import { HttpResponse, http } from 'msw';
-import { data } from './books';
-import type { Book } from '@/types/dtos/books.dto';
 
-let books = data as Array<Book>;
+import { data } from './books';
+import type { BookDto } from '@/types/dtos/books.dto';
+import type { PaginatedResponse } from '@/types/dtos/paginated-response.dto';
+
+let books = data as Array<BookDto>;
 
 export const handlers = [
-  http.get('/api/books', () => {
-    return HttpResponse.json(books)
+  http.get('/api/books', ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1', 10);
+    const pageSize = parseInt(url.searchParams.get('pageSize') || '10', 10);
+
+    const totalItems = books.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedBooks = books.slice(startIndex, endIndex);
+
+    const response: PaginatedResponse<BookDto> = {
+      data: paginatedBooks,
+      totalItems,
+      totalPages,
+      currentPage: page,
+    }
+
+    return HttpResponse.json(response);
   }),
 
   http.get('/api/books/:id', ({ params }) => {
@@ -19,7 +38,7 @@ export const handlers = [
   }),
 
   http.post('/api/books', async ({ request }) => {
-    const newBook = await request.json() as Omit<Book, 'id'>;
+    const newBook = await request.json() as Omit<BookDto, 'id'>;
     const bookWithId = { ...newBook, id: String(Date.now()) };
     books.push(bookWithId);
     return HttpResponse.json(bookWithId, { status: 201 })
@@ -27,7 +46,7 @@ export const handlers = [
 
   http.put('/api/books/:id', async ({ request, params }) => {
     const { id } = params
-    const updatedBookData = await request.json() as Partial<Book>;
+    const updatedBookData = await request.json() as Partial<BookDto>;
     const bookIndex = books.findIndex((b) => b.id === id)
     if (bookIndex === -1) {
       return new HttpResponse(null, { status: 404 })
