@@ -8,7 +8,7 @@ export const Route = createFileRoute('/')({
 
 function App() {
   useEffect(() => {
-    fetch('/api/user').then((res) => res.json()).then((data) => console.log(data))
+    fetch('/api/books').then((res) => res.json()).then((data) => console.log(data))
   }, [])
   return (
     <Container>
