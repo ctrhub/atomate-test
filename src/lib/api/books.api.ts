@@ -4,11 +4,12 @@ import type { PaginatedRequest } from "@/types/dtos/paginated-request.dto";
 export const booksAPI = {
 	async getList(query: PaginatedRequest) {
 		const params = new URLSearchParams();
+
 		params.append('page', query.page?.toString() || '1');
 		params.append('pageSize', query.pageSize?.toString() || '5');
 		query.search && params.append('search', query.search);
 
-		const response = await fetch(`/api/books?${params}`, {
+		const response = await fetch(`/api/books?${params.toString()}`, {
 			method: 'GET',
 		});
 

@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { PaginatedRequest } from "@/types/dtos/paginated-request.dto";
 import type { PaginatedResponse } from "@/types/dtos/paginated-response.dto";
@@ -9,34 +9,20 @@ const STATE_KEYS = {
 	BOOK_LIST: 'book_list',
 };
 
-export function getNextPageParam<TData>(lastPage: PaginatedResponse<TData>) {
-  if (!lastPage.currentPage) return undefined;
-
-  if (lastPage.data.length === 0) return undefined;
-
-  const hasMorePages = lastPage.currentPage < lastPage.totalPages;
-
-  return hasMorePages ? lastPage.currentPage + 1 : undefined;
-}
-
 export const useBookList = (query: PaginatedRequest = {}) => {
 	const queryClient = useQueryClient();
 	const queryKey = [STATE_KEYS.BOOK_LIST, query];
-	const baseQueryKey = [STATE_KEYS.BOOK_LIST];
-	
-	const getBookList = ({ pageParam }: Record<string, any>) => booksAPI.getList({ ...query, page: pageParam });
-	const { data } = useInfiniteQuery({
+
+	const { data } = useQuery<PaginatedResponse<BookDto>>({
 		queryKey,
-		initialPageParam: undefined,
-		queryFn: getBookList,
-		getNextPageParam: (lastPage) => getNextPageParam(lastPage),
+		queryFn: () => booksAPI.getList({ ...query }),
 	});
 
 	const { mutateAsync: createBook } = useMutation({
 		mutationFn: async (createBookDto: CreateBookDto) => booksAPI.create(createBookDto),
 		onSuccess: () => {
 			// This could be optimized with optimistic updates later
-			queryClient.invalidateQueries({ queryKey: baseQueryKey });
+			queryClient.invalidateQueries({ queryKey: queryKey });
 		}
 	});
 
@@ -44,7 +30,7 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 		mutationFn: async ({ bookId, updateBookDto }: { bookId: BookDto['id'], updateBookDto: UpdateBookDto }) => booksAPI.update(bookId, updateBookDto),
 		onSuccess: () => {
 			// This could be optimized with optimistic updates later
-			queryClient.invalidateQueries({ queryKey: baseQueryKey });
+			queryClient.invalidateQueries({ queryKey: queryKey });
 		}
 	});
 
@@ -52,15 +38,16 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 		mutationFn: async (bookId: BookDto['id']) => booksAPI.delete(bookId),
 		onSuccess: () => {
 			// This could be optimized with optimistic updates later
-			queryClient.invalidateQueries({ queryKey: baseQueryKey });
+			queryClient.invalidateQueries({ queryKey: queryKey });
 		}
 	});
 
-	// Concatenate all data pages into a single array
-	const bookList = data?.pages.flatMap((page) => page?.data || []) || [];
+	const bookList = data?.data || [];
+	const pagination = data;
 
 	return {
 		bookList,
+		pagination,
 		createBook,
 		updateBook,
 		deleteBook,
