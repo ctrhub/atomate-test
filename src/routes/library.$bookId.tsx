@@ -19,7 +19,7 @@ function App() {
   const params = Route.useParams();
   const navigate = useNavigate();
 
-  const { book, isLoading } = useBook(params.bookId);
+  const { book, isLoading, error } = useBook(params.bookId);
   const { deleteBook, updateBook, isDeleting, isUpdating } = useBookList();
 
   const handleFormSubmit = async (values: CreateBookDto | UpdateBookDto) => {
@@ -32,6 +32,23 @@ function App() {
     deleteModal.close();
     navigate({ to: '/', replace: true });
   };
+
+  if (error) {
+    return (
+      <Container size="md" mt="lg">
+        <Flex justify="center" py="lg">
+          <Box flex={1}>
+            <Title fs="44px">
+              Book not found!
+            </Title>
+            <Text>
+              An error occurred while loading the book.
+            </Text>
+          </Box>
+        </Flex>
+      </Container>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -95,9 +112,9 @@ function App() {
               </Button>
             </Group>
           </Box>
-          <Image src={book?.imageUrl} flex={1} w="376px" visibleFrom="md" />
+          <Image src={book?.imageUrl} flex={1} w="376px" visibleFrom="sm" />
         </Flex>
-        <Image src={book?.imageUrl} fit="contain" flex={1} h="auto" mah="320px" hiddenFrom="md" />
+        <Image src={book?.imageUrl} fit="contain" flex={1} h="auto" mah="320px" hiddenFrom="sm" />
       </Container>
       <Modal opened={isBookModalOpen} onClose={bookModal.close} title="Add Book">
         <UpsertBookForm

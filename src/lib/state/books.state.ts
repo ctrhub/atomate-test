@@ -74,13 +74,15 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 export const useBook = (bookId: BookDto['id']) => {
 	const queryKey = [STATE_KEYS.BOOK, bookId];
 
-	const { data, isLoading } = useQuery<BookDto>({
+	const { data, error, isLoading } = useQuery<BookDto>({
 		queryKey,
 		queryFn: () => booksAPI.getDetail(bookId),
+		retry: 1,
 	});
 
 	return {
 		book: data,
+		error,
 		isLoading,
 	};
 };
