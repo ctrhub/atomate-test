@@ -35,17 +35,11 @@ function Page() {
     <Container mt="lg">
       <Grid>
         {isLoading ? (
-          <>
-            <Grid.Col span={4}>
+          Array.from({ length: 6 }).map((_, index) => (
+            <Grid.Col span={4} key={index}>
               <Skeleton height={320} />
             </Grid.Col>
-            <Grid.Col span={4}>
-              <Skeleton height={320} />
-            </Grid.Col>
-            <Grid.Col span={4}>
-              <Skeleton height={320} />
-            </Grid.Col>
-          </>
+          ))
         ) : (
           bookList.map((book) => (
             <Grid.Col span={4} key={book.id}>
@@ -54,13 +48,15 @@ function Page() {
           ))
         )}
       </Grid>
-      <Center mt="lg">
-        <Pagination
-          total={pagination?.totalPages || 1}
-          value={pagination?.currentPage || 1}
-          onChange={handlePageChange}
-        />
-      </Center>
+      {!isLoading && (
+        <Center mt="lg">
+          <Pagination
+            total={pagination?.totalPages || 1}
+            value={pagination?.currentPage || 1}
+            onChange={handlePageChange}
+          />
+        </Center>
+      )}
     </Container>
   )
 }

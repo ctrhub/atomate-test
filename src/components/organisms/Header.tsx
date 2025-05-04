@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { IconSearch, IconX } from '@tabler/icons-react';
-import { Autocomplete, Button, Container, Grid, Group, Image, Modal } from '@mantine/core';
+import { IconCheck, IconSearch, IconX } from '@tabler/icons-react';
+import { Autocomplete, Button, Container, Grid, Group, Image, Modal, Text } from '@mantine/core';
 import { Link as TanStackLink, useNavigate, useSearch } from '@tanstack/react-router';
 import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
 
 import type { CreateBookDto, UpdateBookDto } from '@/types/dtos/books.dto';
 import logo from '@/logo.svg';
@@ -24,8 +25,18 @@ export default function Header() {
   const { createBook, isCreating } = useBookList();
 
   const handleFormSubmit = async (values: CreateBookDto | UpdateBookDto) => {
-    await createBook(values);
+    const createdBook = await createBook(values);
     bookModal.close();
+    notifications.show({
+      color: 'teal',
+      title: 'Book created successfully',
+      message: (
+        <Link asChild><TanStackLink to={`/library/${createdBook.id}`}>Click here to go to the book page.</TanStackLink></Link>
+        // <Text>
+        // </Text>
+      ),
+      icon: <IconCheck size={18} />,
+    })
   };
 
   const handleSearch = useDebouncedCallback((value: string) => {
