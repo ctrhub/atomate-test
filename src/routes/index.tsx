@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Center, Container, Grid, Pagination } from '@mantine/core';
+import { Center, Container, Grid, Pagination, Skeleton } from '@mantine/core';
 import z from 'zod';
 
 import { useBookList } from '@/lib/state/books.state';
@@ -19,7 +19,7 @@ function Page() {
   const search = Route.useSearch();
   const navigate = useNavigate();
 
-  const { bookList, pagination } = useBookList(search);
+  const { bookList, pagination, isLoading } = useBookList(search);
 
   const handlePageChange = (page: number) => {
     navigate({
@@ -34,11 +34,25 @@ function Page() {
   return (
     <Container mt="lg">
       <Grid>
-        {bookList.map((book) => (
-          <Grid.Col span={4} key={book.id}>
-            <BookCard book={book} />
-          </Grid.Col>
-        ))}
+        {isLoading ? (
+          <>
+            <Grid.Col span={4}>
+              <Skeleton height={320} />
+            </Grid.Col>
+            <Grid.Col span={4}>
+              <Skeleton height={320} />
+            </Grid.Col>
+            <Grid.Col span={4}>
+              <Skeleton height={320} />
+            </Grid.Col>
+          </>
+        ) : (
+          bookList.map((book) => (
+            <Grid.Col span={4} key={book.id}>
+              <BookCard book={book} />
+            </Grid.Col>
+          ))
+        )}
       </Grid>
       <Center mt="lg">
         <Pagination

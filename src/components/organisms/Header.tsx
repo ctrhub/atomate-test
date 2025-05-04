@@ -21,10 +21,10 @@ export default function Header() {
   const [isBookModalOpen, bookModal] = useDisclosure(false);
 
   const navigate = useNavigate();
-  const { createBook } = useBookList();
+  const { createBook, isCreating } = useBookList();
 
-  const handleFormSubmit = (values: CreateBookDto | UpdateBookDto) => {
-    createBook(values);
+  const handleFormSubmit = async (values: CreateBookDto | UpdateBookDto) => {
+    await createBook(values);
     bookModal.close();
   };
 
@@ -90,6 +90,7 @@ export default function Header() {
       <Modal opened={isBookModalOpen} onClose={bookModal.close} title="Add Book">
         <UpsertBookForm
           onSubmit={handleFormSubmit}
+          isLoading={isCreating}
         />
       </Modal>
     </>

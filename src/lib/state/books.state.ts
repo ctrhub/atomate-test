@@ -14,12 +14,12 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 	const queryClient = useQueryClient();
 	const queryKey = [STATE_KEYS.BOOK_LIST, query];
 
-	const { data } = useQuery<PaginatedResponse<BookDto>>({
+	const { data, isLoading } = useQuery<PaginatedResponse<BookDto>>({
 		queryKey,
 		queryFn: () => booksAPI.getList({ ...query }),
 	});
 
-	const { mutateAsync: createBook } = useMutation({
+	const { mutateAsync: createBook, isPending: isCreating } = useMutation({
 		mutationFn: async (createBookDto: CreateBookDto) => booksAPI.create(createBookDto),
 		onSuccess: () => {
 			// This could be optimized with optimistic updates later
@@ -27,7 +27,7 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 		}
 	});
 
-	const { mutateAsync: updateBook } = useMutation({
+	const { mutateAsync: updateBook, isPending: isUpdating } = useMutation({
 		mutationFn: async ({ bookId, updateBookDto }: { bookId: BookDto['id'], updateBookDto: UpdateBookDto }) => booksAPI.update(bookId, updateBookDto),
 		onSuccess: (data, { bookId }) => {
 			const cachedBook = queryClient.getQueryCache().find({ queryKey: [STATE_KEYS.BOOK, bookId] });
@@ -41,7 +41,7 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 		}
 	});
 
-	const { mutateAsync: deleteBook } = useMutation({
+	const { mutateAsync: deleteBook, isPending: isDeleting } = useMutation({
 		mutationFn: async (bookId: BookDto['id']) => booksAPI.delete(bookId),
 		onSuccess: (_, bookId) => {
 			const cachedBook = queryClient.getQueryCache().find({ queryKey: [STATE_KEYS.BOOK, bookId] });
@@ -64,18 +64,23 @@ export const useBookList = (query: PaginatedRequest = {}) => {
 		createBook,
 		updateBook,
 		deleteBook,
+		isLoading,
+		isCreating,
+		isUpdating,
+		isDeleting
 	}
 };
 
 export const useBook = (bookId: BookDto['id']) => {
 	const queryKey = [STATE_KEYS.BOOK, bookId];
 
-	const { data } = useQuery<BookDto>({
+	const { data, isLoading } = useQuery<BookDto>({
 		queryKey,
 		queryFn: () => booksAPI.getDetail(bookId),
 	});
 
 	return {
 		book: data,
+		isLoading,
 	};
 };
