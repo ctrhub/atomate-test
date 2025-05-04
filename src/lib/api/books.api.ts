@@ -6,7 +6,7 @@ export const booksAPI = {
 		const params = new URLSearchParams();
 
 		params.append('page', query.page?.toString() || '1');
-		params.append('pageSize', query.pageSize?.toString() || '5');
+		params.append('pageSize', query.pageSize?.toString() || '6');
 		query.search && params.append('search', query.search);
 
 		const response = await fetch(`/api/books?${params.toString()}`, {
