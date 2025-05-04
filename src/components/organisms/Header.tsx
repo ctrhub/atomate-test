@@ -1,6 +1,5 @@
 import { IconSearch } from '@tabler/icons-react';
-import { Autocomplete, Burger, Group, Image } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { Autocomplete, Container, Group, Image } from '@mantine/core';
 import { Link as TanStackLink } from '@tanstack/react-router';
 
 import logo from '@/logo.svg';
@@ -8,15 +7,10 @@ import { Link } from '@/components/atoms/Link';
 import classes from '@/components/organisms/Header.module.css';
 
 const links = [
-  { link: '/about', label: 'Features' },
-  { link: '/pricing', label: 'Pricing' },
-  { link: '/learn', label: 'Learn' },
-  { link: '/community', label: 'Community' },
+  { link: '/', label: 'Library' },
 ];
 
 export default function Header() {
-  const [opened, { toggle }] = useDisclosure(false);
-
   const items = links.map((link) => (
     <Link
       key={link.label}
@@ -32,25 +26,26 @@ export default function Header() {
 
   return (
     <header className={classes.header}>
-      <div className={classes.inner}>
-        <Group>
-          <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
+      <Container
+        className={classes.inner}
+      >
+        <Group w={70}>
           <Image src={logo} h={28} alt="logo" />
         </Group>
 
+        <Autocomplete
+          className={classes.search}
+          placeholder="Search"
+          leftSection={<IconSearch size={16} stroke={1.5} />}
+          data={['React', 'Angular', 'Vue', 'Next.js', 'Riot.js', 'Svelte', 'Blitz.js']}
+        />
+
         <Group>
-          <Group ml={50} gap={5} className={classes.links} visibleFrom="sm">
+          <Group className={classes.links}>
             {items}
           </Group>
-          <Autocomplete
-            className={classes.search}
-            placeholder="Search"
-            leftSection={<IconSearch size={16} stroke={1.5} />}
-            data={['React', 'Angular', 'Vue', 'Next.js', 'Riot.js', 'Svelte', 'Blitz.js']}
-            visibleFrom="xs"
-          />
         </Group>
-      </div>
+      </Container>
     </header>
   );
 }

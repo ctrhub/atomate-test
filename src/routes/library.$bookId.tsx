@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { Container } from '@mantine/core'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/library/$bookId')({
   component: App,
 })
 
@@ -12,10 +12,7 @@ function App() {
   }, [])
   return (
     <Container>
-      book list
-      <Link to="/library/1">
-        book 1
-      </Link>
+      book info
     </Container>
   )
 }
