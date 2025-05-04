@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@mantine/form";
-import { Button, Divider, Stack, TextInput, Textarea } from "@mantine/core";
+import { Button, Divider, Loader, Stack, TextInput, Textarea } from "@mantine/core";
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import '@mantine/dates/styles.css';
@@ -10,9 +10,11 @@ import type { CreateBookDto, UpdateBookDto } from "@/types/dtos/books.dto";
 export function UpsertBookForm({
 	book,
 	onSubmit,
+	isLoading,
 }: {
 	book?: CreateBookDto;
 	onSubmit: (values: CreateBookDto | UpdateBookDto) => void;
+	isLoading?: boolean;
 }) {
 	const [date, setDate] = useState<Date | null>(dayjs(book?.publishedAt).toDate());
 
@@ -78,7 +80,14 @@ export function UpsertBookForm({
 					error={form.errors.publishedAt && 'Invalid published at'}
 				/>
 				<Divider my="sm" />
-				<Button radius="md" type="submit">Save</Button>
+				<Button
+					radius="md"
+					type="submit"
+					disabled={isLoading}
+					{...isLoading ? { leftSection: <Loader size="xs" /> } : {}}
+				>
+					{isLoading ? 'Saving...' : 'Save'}
+				</Button>
 			</Stack>
 		</form>
 	);

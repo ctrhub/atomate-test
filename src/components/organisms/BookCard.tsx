@@ -18,7 +18,7 @@ export function BookCard({ book }: { book: BookDto }) {
 						{book.title}
 					</Text>
 				</Group>
-				<Text fz="sm" mt="xs" c="gray.6" className={classes.truncate}>
+				<Text fz="sm" mt="xs" h={42} c="gray.6" className={classes.truncate}>
 					{book.description}
 				</Text>
 				<Flex w="100%" mt="xs" justify="space-between">

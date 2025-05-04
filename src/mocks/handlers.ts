@@ -6,8 +6,12 @@ import type { PaginatedResponse } from '@/types/dtos/paginated-response.dto';
 
 let books = data as Array<BookDto>;
 
+const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const handlers = [
-  http.get('/api/books', ({ request }) => {
+  http.get('/api/books', async ({ request }) => {
+    await sleep(1000);
+
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10', 10);
@@ -44,7 +48,9 @@ export const handlers = [
     return HttpResponse.json(response);
   }),
 
-  http.get('/api/books/:id', ({ params }) => {
+  http.get('/api/books/:id', async ({ params }) => {
+    await sleep(1000);
+
     const { id } = params
     const book = books.find((b) => b.id === id)
     if (!book) {
@@ -54,6 +60,8 @@ export const handlers = [
   }),
 
   http.post('/api/books', async ({ request }) => {
+    await sleep(1000);
+
     const newBook = await request.json() as Omit<BookDto, 'id'>;
     const bookWithId = { ...newBook, id: String(Date.now()) };
     books.push(bookWithId);
@@ -61,6 +69,8 @@ export const handlers = [
   }),
 
   http.put('/api/books/:id', async ({ request, params }) => {
+    await sleep(1000);
+
     const { id } = params
     const updatedBookData = await request.json() as Partial<BookDto>;
     const bookIndex = books.findIndex((b) => b.id === id)
@@ -71,7 +81,9 @@ export const handlers = [
     return HttpResponse.json(books[bookIndex])
   }),
 
-  http.delete('/api/books/:id', ({ params }) => {
+  http.delete('/api/books/:id', async ({ params }) => {
+    await sleep(1000);
+
     const { id } = params
     const initialLength = books.length;
     books = books.filter((b) => b.id !== id)

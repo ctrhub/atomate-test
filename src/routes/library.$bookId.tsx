@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Box, Button, Container, Flex, Group, Image, List, Modal, Text, ThemeIcon, Title } from '@mantine/core';
+import { Box, Button, Container, Flex, Group, Image, List, Loader, Modal, Skeleton, Text, ThemeIcon, Title } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import dayjs from 'dayjs';
@@ -19,8 +19,8 @@ function App() {
   const params = Route.useParams();
   const navigate = useNavigate();
 
-  const { book } = useBook(params.bookId);
-  const { deleteBook, updateBook } = useBookList();
+  const { book, isLoading } = useBook(params.bookId);
+  const { deleteBook, updateBook, isDeleting, isUpdating } = useBookList();
 
   const handleFormSubmit = async (values: CreateBookDto | UpdateBookDto) => {
     await updateBook({ bookId: params.bookId, updateBookDto: values });
@@ -32,6 +32,20 @@ function App() {
     deleteModal.close();
     navigate({ to: '/', replace: true });
   };
+
+  if (isLoading) {
+    return (
+      <Container size="md" mt="lg">
+        <Flex justify="space-between" gap="120px" py="lg">
+          <Box flex={1}>
+            <Skeleton w="100%" h="420px" />
+          </Box>
+          <Skeleton flex={1} w="376px" visibleFrom="md" />
+        </Flex>
+        <Skeleton flex={1} h="auto" mah="320px" hiddenFrom="md" />
+      </Container>
+    );
+  }
 
   return (
     <>
@@ -89,14 +103,24 @@ function App() {
         <UpsertBookForm
           book={book}
           onSubmit={handleFormSubmit}
+          isLoading={isUpdating}
         />
       </Modal>
       <Modal opened={isDeleteModalOpen} onClose={deleteModal.close} title="Delete Book">
         <Text>
           Are you sure you want to delete this book?
         </Text>
-        <Button radius="md" mt="md" w="100%" variant="filled" color="red" onClick={handleDeleteBook}>
-          Delete
+        <Button
+          radius="md"
+          mt="md"
+          w="100%"
+          variant="filled"
+          color="red"
+          onClick={handleDeleteBook}
+          disabled={isDeleting}
+          {...(isDeleting ? { leftSection: <Loader size="xs" /> } : {})}
+        >
+          {isDeleting ? 'Deleting...' : 'Delete'}
         </Button>
       </Modal>
     </>
